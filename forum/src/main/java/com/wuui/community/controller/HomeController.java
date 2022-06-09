@@ -3,10 +3,12 @@ package com.wuui.community.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.wuui.community.bean.DiscussPost;
-import com.wuui.community.bean.User;
+import com.wuui.community.entity.DiscussPost;
+import com.wuui.community.entity.User;
 import com.wuui.community.service.DiscussPostService;
+import com.wuui.community.service.LikeService;
 import com.wuui.community.service.UserService;
+import com.wuui.community.util.CommunityConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,7 +27,7 @@ import java.util.Map;
  */
 @Controller
 
-public class HomeController {
+public class HomeController implements CommunityConstant {
 
     @Autowired
     DiscussPostService discussPostService;
@@ -33,33 +35,62 @@ public class HomeController {
     @Autowired
     UserService userService;
 
+    @Autowired
+    LikeService likeService;
+
+    @GetMapping("/")
+    public String forwardToindex(){
+        return "forward:/index";
+    }
+
     @GetMapping("/index")
     public String index(Model model,
-                        @RequestParam(value = "pn",defaultValue = "1") Integer pn){
+                        @RequestParam(value = "pn",required = false, defaultValue = "1") Integer pn,
+                        @RequestParam(name = "orderMode", defaultValue = "0") int orderMode){
 
-        //页码为pn，大小为5
-        Page<DiscussPost> page = new Page<>(pn, 5);
-        QueryWrapper<DiscussPost> wrapper = new QueryWrapper<>();
-        //条件查询，user_id = 103
-        wrapper.eq("user_id",103);
-        IPage<DiscussPost> discussPostPage = discussPostService.page(page,null);
-//        System.out.println("===========================================================");
-//        System.out.println(discussPostPage.getSize());
+//        long start = System.currentTimeMillis();
+        Page<DiscussPost> discussPostPage = discussPostService.findDiscussPosts(0, pn, 10, orderMode);
+//        long end = System.currentTimeMillis();
+//        System.out.println("访问数据库所花费的时间为：" + (end - start));
 
         List<DiscussPost> records = discussPostPage.getRecords();
         List<Map<String,Object>> discussPosts = new ArrayList<>();
         for (DiscussPost record : records) {
             HashMap<String, Object> postMap = new HashMap<>();
             Integer userId = record.getUserId();
-            User user = userService.getById(userId);
+            User user = userService.findUserById(userId);
+            //帖子信息
             postMap.put("post",record);
+            //帖子作者
             postMap.put("user",user);
+            //帖子点赞数量
+            postMap.put("likeCount", likeService.findEntityLikeCount(ENTITY_TYPE_POST, record.getId()));
+
             discussPosts.add(postMap);
         }
-        model.addAttribute("discussPostPage",discussPostPage);
         model.addAttribute("discussPosts",discussPosts);
+        model.addAttribute("orderMode", orderMode);
+        model.addAttribute("page",discussPostPage);
+//        model.addAttribute("pageDisplayNum", PAGE_DISPLAY_NUM);
+        model.addAttribute("pagePath", "/index?orderMode=" + orderMode);
 
         return "index";
+    }
+
+    @GetMapping("/error")
+    public String error(){
+        return "error/500";
+    }
+
+    //拒绝访问时显示的页面
+    @GetMapping("/denied")
+    public String getDeniedPage(){
+        return "/error/404";
+    }
+
+    @GetMapping("/test")
+    public String getTestPage(){
+        return "test";
     }
 
 }

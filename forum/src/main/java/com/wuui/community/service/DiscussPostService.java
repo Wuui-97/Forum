@@ -1,7 +1,8 @@
 package com.wuui.community.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.wuui.community.bean.DiscussPost;
+import com.wuui.community.entity.DiscussPost;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,6 +14,18 @@ import java.util.List;
  */
 @Service
 public interface DiscussPostService extends IService<DiscussPost> {
-    List<DiscussPost> findDiscussPosts(int userId, int offset, int limit);
+
+    Page<DiscussPost> findDiscussPosts(int userId, int pn, int limit, int orderMode);
+
     int findDiscussPostRow(int userId);
+
+    int addDiscussPost(DiscussPost discussPost);
+
+    DiscussPost findDiscussPostById(int id);
+
+    int updateType(int id, int type);
+
+    int updateStatus(int id, int status);
+
+    int updateScore(int id, double score);
 }

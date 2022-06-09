@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.wuui.community.mapper.DiscussPostMapper">
+<mapper namespace="com.wuui.community.dao.DiscussPostMapper">
 
     <sql id="selectFields">
         id,user_id,title,content,type,status,create_time,comment_count,score
@@ -12,7 +12,7 @@
     </sql>
 
     <!--List<DiscussPost> selectDiscussPosts-->
-    <select id="selectDiscussPosts" resultType="com.wuui.community.bean.DiscussPost">
+    <select id="selectDiscussPosts" resultType="com.wuui.community.entity.DiscussPost">
         select <include refid="selectFields"></include>
         from discuss_post
         where status != 2

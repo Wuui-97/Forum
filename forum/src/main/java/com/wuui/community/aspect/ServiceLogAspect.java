@@ -1,0 +1,49 @@
+package com.wuui.community.aspect;
+
+import lombok.extern.slf4j.Slf4j;
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
+import org.aspectj.lang.annotation.Pointcut;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import javax.servlet.http.HttpServletRequest;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+/**
+ * @author Dee
+ * @create 2022-05-20-22:12
+ * @describe 同一日志记录
+ */
+@Component
+//@Aspect
+@Slf4j
+public class ServiceLogAspect {
+
+    //service包下的所有方法（所有参数及返回值）
+    @Pointcut("execution(* com.wuui.community.service.*.*(..))")
+    public void pointcut(){
+
+    }
+
+    @Before("pointcut()")
+    public void before(JoinPoint joinPoint){
+        //通过RequestContextHolder获取request
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if(attributes == null){
+            return ;
+        }
+        HttpServletRequest request = attributes.getRequest();
+        String ip = request.getRemoteHost();
+        //时间格式化
+        String date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+        //获取切入点
+        String method = joinPoint.getSignature().getDeclaringTypeName() + "." + joinPoint.getSignature().getName();
+        log.info(String.format("用户 [%s] 在 [%s] 访问了[%s] 方法", ip, date, method));
+    }
+
+}

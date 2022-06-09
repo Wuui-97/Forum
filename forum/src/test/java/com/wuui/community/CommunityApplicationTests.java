@@ -1,13 +1,14 @@
 package com.wuui.community;
 
-import com.wuui.community.bean.User;
-import com.wuui.community.mapper.UserMapper;
+import com.wuui.community.entity.User;
+import com.wuui.community.dao.UserMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ContextConfiguration;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 @DisplayName("测试类")
 @SpringBootTest
@@ -22,6 +23,12 @@ class CommunityApplicationTests {
     void contextLoads() {
         User user = userMapper.selectByName("liubei");
         System.out.println(user);
+    }
+
+    @Test
+    public void testDate(){
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        System.out.println(df.format(new Date()));
     }
 
 }
